@@ -50,10 +50,14 @@ c.line(rect.x,rect.y+rect.height,rect.x+rect.width,rect.y+rect.height,{stroke:st
     var rect=node.getBoundingClientRect();
     var style=node.style;
     if(style){
-    style=window.getComputedStyle(node);
-  }
+      style=window.getComputedStyle(node);
+    }
     rect.x-=rootRect.x;
     rect.y-=rootRect.y;
+    if(style){
+      rect.x+=parseFloat(style.paddingLeft);
+      rect.y+=parseFloat(style.paddingTop);
+    }
     //console.log(node,rect);
     c.ctx.beginPath();
     c.ctx.fillStyle="black";
@@ -72,28 +76,68 @@ c.line(rect.x,rect.y+rect.height,rect.x+rect.width,rect.y+rect.height,{stroke:st
     range.selectNodeContents(node);
     var rects = range.getClientRects();
     if (rects.length > 0) {
-      rect=rects[0];
-      //  console.log("Text node rect: ", rects[0]);
-    }
+      var style=node.parentElement.style;
+      if(style){
+        style=window.getComputedStyle(node.parentElement);
+      }
+      c.ctx.beginPath();
+      c.ctx.font=style.font;
+      c.ctx.fillStyle=style.color;
+      c.ctx.textBaseline ="top";//style.verticalAlign;
+      var textToDo=node.textContent.replace(/\n/g,"");
+      var startText=0;
+      var endText=0;
+      for(var i=0;i<rects.length;i++){
+        while(textToDo[startText]===" "){
+          startText++;
+        }
+        endText=startText+0;
+        var textPart="";
+        var textWidth=c.ctx.measureText(textPart).width;
+        rect=rects[i];
+        rect.x-=rootRect.x;
+        rect.y-=rootRect.y;
+        while(endText<textToDo.length && textWidth<rect.width){
+          endText++;
+          textPart=textPart+textToDo[endText-1];
+          textWidth=c.ctx.measureText(textPart).width;
+        }
+        //  console.log("Text node rect: ", rects[0]);
 
-    var style=node.parentElement.style;
-    if(style){
-    style=window.getComputedStyle(node.parentElement);
-  }
-    rect.x-=rootRect.x;
-    rect.y-=rootRect.y;
-    //console.log(node,rect);
-    c.ctx.beginPath();
-    c.ctx.fillStyle="black";
-    c.ctx.font=style.font;
-    c.ctx.fillStyle=style.color;
-    c.ctx.textBaseline =style.verticalAlign;
-    c.ctx.fillText(node.textContent.replace("\n",""),rect.x,rect.y);
-    c.ctx.fill();
+
+        //console.log(node,rect);
+
+        c.ctx.fillText(textPart,rect.x,rect.y);
+        startText=endText+0;
+      }
+      c.ctx.fill();
+    }
     /*c.rectangle(rect.x,rect.y,rect.width,rect.height,{fill:style.backgroundColor,strokeWidth:0,stroke:"rgba(0,0,0,0)"});
     if(style.borderTopWidth){
     c.line(rect.x,rect.y,rect.x+rect.width,0,{stroke:style.borderTopColor||"rgba(0,0,0,0)",strokeWidth:style.borderTopWidth});
   }*/
+  }
+  if(node.tagName=="CANVAS"){
+    var rect=node.getBoundingClientRect();
+    var style=node.style;
+    if(style){
+    style=window.getComputedStyle(node);
+    }
+    rect.x-=rootRect.x;
+    rect.y-=rootRect.y;
+    c.ctx.drawImage(node,rect.x,rect.y,rect.width,rect.height);
+
+  }
+  if(node.tagName=="IMG"){
+    var rect=node.getBoundingClientRect();
+    var style=node.style;
+    if(style){
+    style=window.getComputedStyle(node);
+    }
+    rect.x-=rootRect.x;
+    rect.y-=rootRect.y;
+    c.ctx.drawImage(node,rect.x,rect.y,rect.width,rect.height);
+
   }
 
 
@@ -143,12 +187,12 @@ function reDraw(){
   rc.ctx.clearRect(0,0,rc.canvas.width,rc.canvas.height);
   draw(tnode,rc,tnode)
   drawSelection(rc,tnode);
-  requestAnimationFrame(reDraw);
+  //requestAnimationFrame(reDraw);
 }
 
-//window.setInterval(reDraw,10);
+window.setInterval(reDraw,10);
 //draw(tnode,rc,tnode)
-reDraw();
+//reDraw();
 window.addEventListener("resize",function(){
   rc.canvas.width=window.innerWidth;
   rc.canvas.height=window.innerHeight;
