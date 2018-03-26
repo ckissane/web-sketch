@@ -1,0 +1,38 @@
+<html>
+
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
+
+  <script src="rough.js"></script>
+</head>
+<body style="width:100%;height:100%;margin:0px;">
+
+<p>
+Greetings, This is a project to take html and put a canvas over it that re renders it but in a sketchy way.
+</p>
+<p>
+Try selecting this text
+</p>
+  <textarea>I am a text area you can resize me</textarea>
+<style>
+textarea{
+  min-width: 300px;
+}
+</style>
+<style>
+#sketch{
+position: absolute;
+top:0px;
+left:0px;
+background: white;
+z-index: 10000;
+pointer-events: none;
+}
+body *{
+  font-family: 'Indie Flower', cursive;
+  /*font-size: 20px;*/
+}
+</style>
+<script src="sketchy.js"></script>
+</body>
+</html>
