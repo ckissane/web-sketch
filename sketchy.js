@@ -1,5 +1,6 @@
 var can=document.createElement("canvas");
 can.id="sketch";
+can.style="position: fixed;top:0px;left:0px;background: white;z-index: 10000;pointer-events: none;";
 document.body.appendChild(can);
 const rc = rough.canvas(document.getElementById('sketch'));
 rc.canvas.width=window.innerWidth;
@@ -10,6 +11,7 @@ if(node==c.canvas){
   return;
 }
   var rootRect=root.getBoundingClientRect();
+  rootRect.y+=window.scrollY;
   var style=node.style;
   if(style){
   style=window.getComputedStyle(node);
@@ -118,6 +120,7 @@ function zIndex(node){
 }
 function drawSelection(c,root){
   var rootRect=root.getBoundingClientRect();
+    rootRect.y+=window.scrollY;
   var selObj = window.getSelection();
   for(var j=0;j<selObj.rangeCount;j++){
   var range  = selObj.getRangeAt(j);
@@ -137,7 +140,7 @@ function reDraw(){
   rc.ctx.clearRect(0,0,rc.canvas.width,rc.canvas.height);
   draw(tnode,rc,tnode)
   drawSelection(rc,tnode);
-  requestAnimationFrame(reDraw);
+  //requestAnimationFrame(reDraw);
 }
 
 //window.setInterval(reDraw,10);
