@@ -140,7 +140,7 @@ function reDraw(){
   rc.ctx.clearRect(0,0,rc.canvas.width,rc.canvas.height);
   draw(tnode,rc,tnode)
   drawSelection(rc,tnode);
-  //requestAnimationFrame(reDraw);
+  requestAnimationFrame(reDraw);
 }
 
 //window.setInterval(reDraw,10);
