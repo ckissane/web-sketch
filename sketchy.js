@@ -1,17 +1,52 @@
+(function(){
 var can=document.createElement("canvas");
 can.id="sketch";
 can.style="position: fixed;top:0px;left:0px;background: white;z-index: 10000;pointer-events: none;";
 document.body.appendChild(can);
 const rc = rough.canvas(document.getElementById('sketch'));
+
+var generated=[];
 rc.canvas.width=window.innerWidth;
 rc.canvas.height=window.innerHeight;
 var tnode = document.body;
-function draw(node,c,root){
+function drawNode(node,c,root){
+  var generator = c.generator;
+  var gens=[];
+  var genCond=[];
+  var style=node.style;
+  if(style){
+  style=window.getComputedStyle(node);
+}
+  if(style){
+    genCond.push(style.width+"");
+    genCond.push(style.height+"");
+    genCond.push(style.background+"");
+    genCond.push(style.color+"");
+    genCond.push(style.padding+"");
+    genCond.push(style.border+"");
+  }
+  if(node.getBoundingClientRect){
+    var rect=node.getBoundingClientRect();
+    genCond.push(rect.x+"");
+    genCond.push(rect.y+"");
+
+  }
+  var needToGen=true;
+  if(node.generatedSketch){
+    needToGen=false;
+    gens=node.generatedSketch[0];
+    //genCond=node.generatedSketch[1];
+  }
+  if(!needToGen){
+    if(JSON.stringify(genCond)!=node.generatedSketch[1]){
+      needToGen=true;
+    }
+  }
 if(node==c.canvas){
   return;
 }
   var rootRect=root.getBoundingClientRect();
-  rootRect.y+=window.scrollY;
+  //rootRect.y+=window.scrollY;
   var style=node.style;
   if(style){
   style=window.getComputedStyle(node);
@@ -19,33 +54,44 @@ if(node==c.canvas){
   if(style && style.display=="none"){
     return;
   }
-  //console.log(node);
+  /*if(needDraw(node)){
 
+  }*/
+  //console.log(node);
+if(needToGen){
+
+  gens=[];
   if(node.getBoundingClientRect){
     var rect=node.getBoundingClientRect();
     rect.x-=rootRect.x;
     rect.y-=rootRect.y;
     //console.log(node,rect);
     if(style.backgroundColor!=="rgba(0, 0, 0, 0)"){
-    c.rectangle(rect.x,rect.y,rect.width,rect.height,{fill:style.backgroundColor,strokeWidth:0,stroke:"rgba(0,0,0,0)",
+    gens.push(generator.rectangle(rect.x,rect.y,rect.width,rect.height,{fill:style.backgroundColor,strokeWidth:0,stroke:"rgba(0,0,0,0)",
     hachureAngle: 60, // angle of hachure,
   hachureGap: 1
-  });
+}));
   }
   var bow=200;
-    if(style.borderTopWidth!=="0px"){
-    c.line(rect.x,rect.y,rect.x+rect.width,rect.y,{stroke:style.borderTopColor||"rgba(0,0,0,0)",strokeWidth:style.borderTopWidth,bowing:bow/rect.width});
+  if(style.borderTopWidth!=="0px"){
+    gens.push(generator.line(rect.x,rect.y,rect.x+rect.width,rect.y,{stroke:style.borderTopColor||"rgba(0,0,0,0)",strokeWidth:style.borderTopWidth,bowing:bow/rect.width}));
   }
   if(style.borderLeftWidth!=="0px"){
-  c.line(rect.x,rect.y,rect.x,rect.y+rect.height,{stroke:style.borderLeftColor||"rgba(0,0,0,0)",strokeWidth:style.borderLeftWidth,bowing:bow/rect.height});
-}
-if(style.borderBottomWidth!=="0px"){
-c.line(rect.x,rect.y+rect.height,rect.x+rect.width,rect.y+rect.height,{stroke:style.borderBottomColor||"rgba(0,0,0,0)",strokeWidth:style.borderBottomWidth,bowing:bow/rect.width});
-}
-  if(style.borderRightWidth!=="0px"){
-  c.line(rect.x+rect.width,rect.y,rect.x+rect.width,rect.y+rect.height,{stroke:style.borderRightColor||"rgba(0,0,0,0)",strokeWidth:style.borderRightWidth,bowing:bow/rect.height});
-}
+    gens.push(generator.line(rect.x,rect.y,rect.x,rect.y+rect.height,{stroke:style.borderLeftColor||"rgba(0,0,0,0)",strokeWidth:style.borderLeftWidth,bowing:bow/rect.height}));
   }
+  if(style.borderBottomWidth!=="0px"){
+    gens.push(generator.line(rect.x,rect.y+rect.height,rect.x+rect.width,rect.y+rect.height,{stroke:style.borderBottomColor||"rgba(0,0,0,0)",strokeWidth:style.borderBottomWidth,bowing:bow/rect.width}));
+  }
+  if(style.borderRightWidth!=="0px"){
+    gens.push(generator.line(rect.x+rect.width,rect.y,rect.x+rect.width,rect.y+rect.height,{stroke:style.borderRightColor||"rgba(0,0,0,0)",strokeWidth:style.borderRightWidth,bowing:bow/rect.height}));
+  }
+  }
+  node.generatedSketch=[gens,JSON.stringify(genCond)];
+  //console.log(gens)
+}
+for(var i=0;i<gens.length;i++){
+  c.draw(gens[i]);
+}
   if(node.nodeType!==3 && node.getBoundingClientRect){
     var rect=node.getBoundingClientRect();
     var style=node.style;
@@ -151,7 +197,7 @@ c.line(rect.x,rect.y+rect.height,rect.x+rect.width,rect.y+rect.height,{stroke:st
     child.sort(function(a,b){return zIndex(a)-zIndex(b)});
     for(var i=0;i<node.childNodes.length;i++){
       var cn=child[i];
-      draw(cn,c,root);
+      drawNode(cn,c,root);
     }
   }
 }
@@ -167,7 +213,7 @@ function zIndex(node){
 }
 function drawSelection(c,root){
   var rootRect=root.getBoundingClientRect();
-    rootRect.y+=window.scrollY;
+    //rootRect.y+=window.scrollY;
   var selObj = window.getSelection();
   for(var j=0;j<selObj.rangeCount;j++){
   var range  = selObj.getRangeAt(j);
@@ -185,15 +231,19 @@ function drawSelection(c,root){
 }
 function reDraw(){
   rc.ctx.clearRect(0,0,rc.canvas.width,rc.canvas.height);
-  draw(tnode,rc,tnode)
+  rc.ctx.save();
+  rc.ctx.translate(-window.scrollX,-window.scrollY);
+  drawNode(tnode,rc,tnode)
   drawSelection(rc,tnode);
-  //requestAnimationFrame(reDraw);
+  rc.ctx.restore();
+  requestAnimationFrame(reDraw);
 }
 
-window.setInterval(reDraw,10);
+//var drawInterval=window.setInterval(reDraw,100);
 //draw(tnode,rc,tnode)
-//reDraw();
+reDraw();
 window.addEventListener("resize",function(){
   rc.canvas.width=window.innerWidth;
   rc.canvas.height=window.innerHeight;
 });
+})();
