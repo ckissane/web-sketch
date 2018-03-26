@@ -16,6 +16,9 @@ if(node==c.canvas){
   if(style){
   style=window.getComputedStyle(node);
 }
+  if(style && style.display=="none"){
+    return;
+  }
   //console.log(node);
 
   if(node.getBoundingClientRect){
