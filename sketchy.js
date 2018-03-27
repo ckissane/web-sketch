@@ -1,4 +1,4 @@
-//(function(){
+(function(){
 // offsetRelative (or, if you prefer, positionRelative)
 (function($){
     $.fn.offsetRelative = function(top){
@@ -352,4 +352,4 @@ window.addEventListener("resize",function(){
   rc.canvas.width=window.innerWidth;
   rc.canvas.height=window.innerHeight;
 });
-//})();
+})();
