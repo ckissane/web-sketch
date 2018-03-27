@@ -159,7 +159,8 @@ if(needToGen){
     if(style.backgroundColor!=="rgba(0, 0, 0, 0)"){
     gens.push(generator.rectangle(0,0,size.x,size.y,{fill:style.backgroundColor,strokeWidth:0,stroke:"rgba(0,0,0,0)",
     hachureAngle: sketchRotation/Math.PI*180, // angle of hachure,
-  hachureGap: 1
+  hachureGap: 0.5,
+  roughness:2.8
 }));
   }
   var bow=200;
