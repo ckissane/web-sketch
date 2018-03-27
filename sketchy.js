@@ -77,7 +77,7 @@ if(needToGen){
     if(style.backgroundColor!=="rgba(0, 0, 0, 0)"){
     gens.push(generator.rectangle(rect.x,rect.y,rect.width,rect.height,{fill:style.backgroundColor,strokeWidth:0,stroke:"rgba(0,0,0,0)",
     hachureAngle: strokeDir, // angle of hachure,
-  hachureGap: 0.5,
+  hachureGap: 1,
   roughness: 2.8
 }));
   }
