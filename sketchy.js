@@ -73,7 +73,7 @@
     if (needToGen) {
 
       gens = [];
-      if (node.getBoundingClientRect) {
+      if (style && node.getBoundingClientRect) {
         var rect = node.getBoundingClientRect();
         rect.x -= rootRect.x;
         rect.y -= rootRect.y;
@@ -84,7 +84,7 @@
             strokeWidth: 0,
             stroke: "rgba(0,0,0,0)",
             hachureAngle: strokeDir, // angle of hachure,
-            hachureGap: 0.5,
+            hachureGap: 1,
             roughness: 2.8
           }));
         }
@@ -137,12 +137,14 @@
         rect.y += parseFloat(style.paddingTop);
       }
       //console.log(node,rect);
-      c.ctx.beginPath();
-      c.ctx.fillStyle = "black";
-      c.ctx.font = style.font;
-      c.ctx.textBaseline = "top"; // style.verticalAlign;
-      c.ctx.fillText((node.value || ""), rect.x, rect.y);
-      c.ctx.fill();
+      if (style) {
+        c.ctx.beginPath();
+        c.ctx.fillStyle = "black";
+        c.ctx.font = style.font;
+        c.ctx.textBaseline = "top"; // style.verticalAlign;
+        c.ctx.fillText((node.value || ""), rect.x, rect.y);
+        c.ctx.fill();
+      }
       /*c.rectangle(rect.x,rect.y,rect.width,rect.height,{fill:style.backgroundColor,strokeWidth:0,stroke:"rgba(0,0,0,0)"});
     if(style.borderTopWidth){
     c.line(rect.x,rect.y,rect.x+rect.width,0,{stroke:style.borderTopColor||"rgba(0,0,0,0)",strokeWidth:style.borderTopWidth});
@@ -153,11 +155,12 @@
       var range = document.createRange();
       range.selectNodeContents(node);
       var rects = range.getClientRects();
-      if (rects.length > 0) {
-        var style = node.parentElement.style;
-        if (style) {
-          style = window.getComputedStyle(node.parentElement);
-        }
+      var style = node.parentElement.style;
+      if (style) {
+        style = window.getComputedStyle(node.parentElement);
+      }
+      if (rects.length > 0 && style) {
+
         c.ctx.beginPath();
         c.ctx.font = style.font;
         c.ctx.fillStyle = style.color;
