@@ -72,6 +72,7 @@ function drawNode(node,c,root,offset){
   var sketchRotation=Math.random()*Math.PI*2;
   var generator = c.generator;
   var gens=[];
+  var strokeDir=Math.random()*180;
   var genCond=[];
   var style=node.style;
   if(style){
