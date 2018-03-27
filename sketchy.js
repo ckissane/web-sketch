@@ -12,6 +12,7 @@ var tnode = document.body;
 function drawNode(node,c,root){
   var generator = c.generator;
   var gens=[];
+  var strokeDir=Math.random()*180;
   var genCond=[];
   var style=node.style;
   if(style){
@@ -58,6 +59,13 @@ if(node==c.canvas){
 
   }*/
   //console.log(node);
+  if(needToGen){
+node.strokeDir=strokeDir;
+  }else{
+    if(node.strokeDir){
+      strokeDir=node.strokeDir;
+    }
+  }
 if(needToGen){
 
   gens=[];
@@ -68,8 +76,9 @@ if(needToGen){
     //console.log(node,rect);
     if(style.backgroundColor!=="rgba(0, 0, 0, 0)"){
     gens.push(generator.rectangle(rect.x,rect.y,rect.width,rect.height,{fill:style.backgroundColor,strokeWidth:0,stroke:"rgba(0,0,0,0)",
-    hachureAngle: 60, // angle of hachure,
-  hachureGap: 1
+    hachureAngle: strokeDir, // angle of hachure,
+  hachureGap: 0.5,
+  roughness: 2.8
 }));
   }
   var bow=200;
